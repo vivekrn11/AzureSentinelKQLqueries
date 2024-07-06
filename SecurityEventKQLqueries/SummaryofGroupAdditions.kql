@@ -1,4 +1,4 @@
-//Use Case : To detect users being added to local adin group
+//Use Case : To detect users being added to local admin group
 //Create a daily report of users being added to on premise Active Directory groups, summarized by group name
 
 SecurityEvent
