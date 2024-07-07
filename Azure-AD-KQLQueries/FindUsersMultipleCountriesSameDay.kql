@@ -1,0 +1,13 @@
+//Find users who have successfully signed into Azure AD from 3 or more countries in the same day
+
+
+
+SigninLogs
+| where TimeGenerated > ago(180d)
+| where ResultType == 0
+| where isnotempty(Location)
+| summarize
+    ['Count of countries']=dcount(Location),
+    ['List of countries']=make_set(Location)
+    by UserPrincipalName, bin(TimeGenerated, 1d)
+| where ['Count of countries'] >= 3
