@@ -1,0 +1,11 @@
+//Threat Intelligence Data from Sentinel UEBA
+
+BehaviorAnalytics
+| where TimeGenerated > ago(90d)
+| where DevicesInsights contains "ThreatIntelIndicatorType"
+| extend ISP = tostring(DevicesInsights.ISP)
+| extend BruteForcer = tostring(ActivityInsights.UnusualNumberOfDistinctUsersFailedSignInFromIPAddress)
+| where BruteForcer == "True"
+| where ISP != ""
+| summarize Count=count() by ISP
+| sort by Count desc
