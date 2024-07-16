@@ -1,0 +1,18 @@
+// Query will check for log sources which have not reported to sentinel for more then 72 hours
+
+(union isfuzzy=true 
+(union 
+AzureDiagnostics,
+Syslog,
+Heartbeat,
+CommonSecurityLog
+| where TimeGenerated > ago(72h)
+)
+)
+| extend LogSource = iff(isnotempty(Computer), Computer, Resource)
+| extend LogSource = iff(isnotempty(LogSource), LogSource, HostName)
+| extend LogSource = iff(isnotempty(LogSource), LogSource, SourceSystem)
+| summarize LastHeartbeat = max(TimeGenerated) by LogSource
+| extend State = iff((LastHeartbeat < ago(24h)), 'Unhealthy', 'Healthy')
+| distinct *
+| project  LogSource, LastHeartbeat, State
