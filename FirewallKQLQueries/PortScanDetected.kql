@@ -1,0 +1,13 @@
+//FW - Potential Local Port Scan Detected. A port scan attack helps cyber criminals find open ports and figure out whether they are receiving or sending data.
+
+let timeframe = ago(1h);
+let threshold = 100;
+CommonSecurityLog
+//| where TimeGenerated >= timeframe
+|where (ipv4_is_match( "10.0.0.0", SourceIP,8) or ipv4_is_match( "172.16.0.0",SourceIP,12) or ipv4_is_match( "192.168.0.0",SourceIP,16))
+|where (ipv4_is_match( "10.0.0.0", DestinationIP,8) or ipv4_is_match( "172.16.0.0",DestinationIP,12) or ipv4_is_match( "192.168.0.0",DestinationIP,16))
+| where DestinationPort <=1024
+| where DeviceAction contains "accept" or DeviceAction contains "deny"
+|summarize starttime=min(TimeGenerated), endtime=max(TimeGenerated), Eventcount=count(),DPc=dcount(DestinationIP) by SourceIP,DestinationPort, bin(TimeGenerated, 5m)
+| where DPc > threshold
+|where Eventcount>=10
