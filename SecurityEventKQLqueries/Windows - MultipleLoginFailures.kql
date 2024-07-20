@@ -1,0 +1,7 @@
+//This use case Identifies multiple consecutive logon failures from the same Workstation and within a short time interval. Adversaries will often brute force login attempts across multiple users with a common or known password, in an attempt to gain access to accounts.
+
+SecurityEvent
+| where EventID == 4625
+| where TargetUserName !endswith "$" and TargetUserName != "-"
+| summarize UserNamesCount = dcount(TargetUserName),TargetedAccount=make_set(TargetUserName) by Computer,bin(TimeGenerated,5m)
+| where UserNamesCount >= 2
