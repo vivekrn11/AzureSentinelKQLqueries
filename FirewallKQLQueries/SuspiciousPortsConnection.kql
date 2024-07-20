@@ -1,0 +1,8 @@
+//Detects Inbound Accept Connection On Suspicious Ports.   
+
+let portrange = dynamic(["21","22","23","25","53","443","110","135","137","138","139","1433","1434","80"]);
+CommonSecurityLog
+| where (not(ipv4_is_match("10.0.0.0",SourceIP,8) or ipv4_is_match("172.16.0.0",SourceIP,12) or ipv4_is_match("192.168.0.0",SourceIP,16))) and (ipv4_is_match("10.0.0.0",DestinationIP,8) or ipv4_is_match("172.16.0.0",DestinationIP,12) or ipv4_is_match("192.168.0.0",DestinationIP,16))
+| where DeviceAction contains "allow" or DeviceAction contains "accept"
+| where DestinationPort in (portrange)
+| project SourceIP, DestinationIP, DeviceAction, ApplicationProtocol, DestinationPort
