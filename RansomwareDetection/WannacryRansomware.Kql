@@ -1,0 +1,8 @@
+//FIrst steps : Create watchlist of Wannacry ip in Azure sentinel and assign name of watchlist "wannacryips" as defined below in query.
+
+let Wannacry_CAndC_server = (_GetWatchlist('wanncryips') | project Wanncryips);
+CommonSecurityLog
+| where (ipv4_is_match("10.0.0.0",SourceIP,8) or ipv4_is_match("172.16.0.0",SourceIP,12) or ipv4_is_match("192.168.0.0",SourceIP,16))
+| where not(ipv4_is_match("10.0.0.0",DestinationIP,8) or ipv4_is_match("172.16.0.0",DestinationIP,12) or ipv4_is_match("192.168.0.0",DestinationIP,16))
+| where DeviceAction contains "Accept" or DeviceAction contains "Allow"
+| where DestinationIP in~ (Wannacry_CAndC_server)
