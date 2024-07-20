@@ -1,0 +1,8 @@
+//Remote IRC Connections. Detects events that use common ports for Internet Relay Chat (IRC) to the Internet. IRC is a common protocol that can be used for chat and file transfers. This protocol is also a good candidate for remote control of malware and data transfers to and from a network.
+
+let portrange = dynamic(["6665","6666","6667","6668","6669","6697","7000"]);
+CommonSecurityLog
+| where (not(ipv4_is_match("10.0.0.0",SourceIP,8) or ipv4_is_match("172.16.0.0",SourceIP,12) or ipv4_is_match("192.168.0.0",SourceIP,16))) 
+and not (ipv4_is_match("10.0.0.0",DestinationIP,8) or ipv4_is_match("172.16.0.0",DestinationIP,12) or ipv4_is_match("192.168.0.0",DestinationIP,16))
+| where DeviceAction contains "allow" or DeviceAction contains "accept"
+| where DestinationPort in (portrange)
