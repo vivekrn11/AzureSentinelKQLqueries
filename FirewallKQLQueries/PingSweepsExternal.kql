@@ -1,0 +1,10 @@
+//FW - Ping sweeps from External IP. Attacker often tries to leverage this network scanning technique so they can find out which IP addresses map to live hosts.
+
+CommonSecurityLog
+|where ApplicationProtocol contains ("ICMP")
+| where not(ipv4_is_match("10.0.0.0",SourceIP,8) or ipv4_is_match("172.16.0.0",SourceIP,12) or ipv4_is_match("192.168.0.0",SourceIP,16))
+| where (ipv4_is_match("10.0.0.0",DestinationIP,8) or ipv4_is_match("172.16.0.0",DestinationIP,12) or ipv4_is_match("192.168.0.0",DestinationIP,16))
+| where DeviceAction contains "accept" or DeviceAction contains "deny"
+|summarize starttime=min(TimeGenerated), endtime=max(TimeGenerated), Eventcount=count(),DPc=dcount(DestinationIP) by SourceIP,DestinationPort, bin(TimeGenerated, 3m)
+|where DPc>1
+|where Eventcount>=1
