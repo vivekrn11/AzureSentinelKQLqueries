@@ -1,0 +1,9 @@
+// To calculate the High severity and Incident that has been raised refer below query. Will be using below query in creating a automated logic apps 
+
+SecurityIncident
+| where CreatedTime >= ago(24h)
+| project TimeGenerated,IncidentNumber,Title,Owner,ClassificationReason, message_ = tostring(Comments[1].message),tostring(Comments[2].message),tostring(Comments[3].message),tostring(Comments[4].message)
+|where message_ != "" 
+|summarize arg_max(TimeGenerated,*) by IncidentNumber
+| extend assignedTo_ = tostring(Owner.assignedTo)
+|where assignedTo_ != ""
