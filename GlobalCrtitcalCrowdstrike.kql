@@ -1,7 +1,0 @@
-//Custom DefenderXDR KQL detection for fake CrowdStrike email domain
-
-EmailEvents
-| where EmailDirection == "Inbound"
-| where LatestDeliveryAction == "Delivered"
-| where SenderFromAddress contains "crowdstrike"
-| where SenderFromAddress !contains "crowdstrike.com"
