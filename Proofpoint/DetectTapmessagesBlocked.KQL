@@ -1,0 +1,20 @@
+//ProofpointTAPMessages Blocked and display top 10 
+
+
+ProofPointTAPMessagesBlocked_CL
+| mv-expand todynamic(threatsInfoMap_s)
+| extend classification = tostring(threatsInfoMap_s.classification)
+| extend threatType_ = tostring(threatsInfoMap_s.threatType)
+| where classification in ('phish', 'malware', 'impostor', 'toad') or '*' in ('phish', 'malware', 'impostor', 'toad')
+| where threatType_ in ('url', 'attachment', 'messageText') or '*' in ('url', 'attachment', 'messageText')
+| mv-expand todynamic(recipient_s)
+| summarize
+    phish = countif(classification == "phish"),
+    malware = countif(classification == "malware"),
+    impostor = countif(classification == "impostor"),
+    spam = countif(classification == "spam"),
+    toad = countif(classification == "toad"),
+    count()
+    by tostring(recipient_s)
+| project-rename Total = count_, Recipient = recipient_s
+| top 10 by Total
