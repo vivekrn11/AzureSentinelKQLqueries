@@ -1,0 +1,13 @@
+//Will calculate all inicdents received in sentinel
+
+
+SecurityIncident
+| summarize arg_max(LastModifiedTime,*) by IncidentNumber
+| where CreatedTime > startofday(datetime("2022-12-12 00:00:00")) and CreatedTime < endofday(datetime("2022-12-25 23:59:59"))
+//| where Status has "closed"
+| extend assignedTo = tostring(Owner.assignedTo)
+| extend alertsCount = tostring(AdditionalData.alertsCount)
+| extend Tactics = tostring(parse_json(tostring(AdditionalData.tactics))[0])
+| extend TimeToTriage_inSec =  (FirstModifiedTime - CreatedTime)/1s
+| summarize StartTime = min(CreatedTime), EndTime = max(CreatedTime) by IncidentNumber, CreatedTime, Title, Severity, Tactics, assignedTo, alertsCount, ClosedTime, Status, ModifiedBy,Classification, ClassificationComment, ClassificationReason, ProviderName, TimeToTriage_inSec
+| project IncidentNumber, CreatedTime, Title, Severity, Tactics, assignedTo, alertsCount, ClosedTime,Status, ModifiedBy, Classification, ClassificationComment, ClassificationReason, ProviderName, TimeToTriage_inSec
