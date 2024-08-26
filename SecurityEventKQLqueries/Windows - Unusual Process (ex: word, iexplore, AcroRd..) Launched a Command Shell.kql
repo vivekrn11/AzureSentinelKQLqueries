@@ -1,0 +1,6 @@
+SecurityEvent
+| where EventID == 4688
+| project NewProcessName, ParentProcessName
+| where NewProcessName matches regex @"((cmd)|(powershell)|(rundll32)|(wscript)|(scrcons)|(cscript)|(bash)|(sh))\.exe"
+| where ParentProcessName matches regex @"((iexplore)|(winword)|(powerpnt)|(excel)|(access)|(notepad)|(outlook)|(calc)|(iexplore)|(mspub)|(visio)|(AcroRd\d\d))\.exe"
+| where ParentProcessName !contains "iexplore.exe"
