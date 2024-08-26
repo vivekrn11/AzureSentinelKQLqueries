@@ -1,0 +1,4 @@
+SecurityEvent
+| where EventID == 4624
+| where LogonType == 9
+| where LogonProcessName contains "seclogo" and AuthenticationPackageName contains "Negotiate"
