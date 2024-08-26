@@ -1,0 +1,10 @@
+SecurityEvent
+| where TimeGenerated > ago(4h)
+| summarize LastHeartbeat = max(TimeGenerated)
+| extend State = iff(LastHeartbeat < ago(5min), 'Unhealthy', 'Healthy')
+| where State == 'Unhealthy'
+| extend TimeFromNow = now() - LastHeartbeat
+| extend ["LastLog"] = strcat('🕒 ',(strcat(case(TimeFromNow < 1m, strcat(toint(TimeFromNow / 1m), ' seconds'), TimeFromNow < 1h, strcat(toint(TimeFromNow / 1m), ' minutes'), TimeFromNow < 1d, strcat(toint(TimeFromNow / 1h), ' hours'), strcat(toint(TimeFromNow / 1d), ' days')), ' ago')))
+| extend Description = "Windows Security Events via AMALogs Connector is down. Verify security event are reporting to sentinel ( Please contact SPOC immidiately!!)"
+| extend Tablename = "securityevent"
+| project LastLog, LastHeartbeat, Description, Tablename
