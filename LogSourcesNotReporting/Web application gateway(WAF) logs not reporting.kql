@@ -1,0 +1,11 @@
+AzureDiagnostics
+| where TimeGenerated > ago(4h)
+| where ResourceType == "APPLICATIONGATEWAYS"
+| summarize LastHeartbeat = max(TimeGenerated)
+| extend State = iff(LastHeartbeat < ago(5m), 'Unhealthy', 'Healthy')
+| where State == 'Unhealthy'
+| extend TimeFromNow = now() - LastHeartbeat
+| extend ["LastLog"] = strcat('🕒 ',(strcat(case(TimeFromNow < 1m, strcat(toint(TimeFromNow / 1m), ' seconds'), TimeFromNow < 1h, strcat(toint(TimeFromNow / 1m), ' minutes'), TimeFromNow < 1d, strcat(toint(TimeFromNow / 1h), ' hours'), strcat(toint(TimeFromNow / 1d), ' days')), ' ago')))
+| extend Description = "Azure Web Application Firewall (WAF) Connector is down. Verify APPLICATIONGATEWAYS logs are reporting to sentinel ( Please contact SPOC immidiately!!)"
+| extend Tablename = "AzureDiagnostics"
+| project LastLog, LastHeartbeat, Description, Tablename
