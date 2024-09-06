@@ -1,0 +1,14 @@
+
+//Multiple connection over 445 port 
+
+CommonSecurityLog
+| where DestinationPort == '445' 
+| where DeviceAction contains "allow" //and ApplicationProtocol contains "allow"
+| summarize 
+    EventCount = count(), 
+    UniqueDestinationIPs = dcount(DestinationIP), 
+    DstIpList = make_set(DestinationIP), 
+    StartTime = min(TimeGenerated), 
+    EndTime = max(TimeGenerated) 
+    by SourceIP, bin(TimeGenerated, 10m)
+| where EventCount > 1000
