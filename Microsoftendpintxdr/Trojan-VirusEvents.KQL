@@ -1,0 +1,16 @@
+// Treat Backdoor Trojans and Virus Events as Offenses on one endpoint
+
+
+DeviceEvents
+| extend ParsedFields=parse_json(AdditionalFields) 
+| extend ParsedFields=parse_json(AdditionalFields) 
+//|search "trojan"
+| extend ThreatName_ = tostring(AdditionalFields.ThreatName)
+| where isnotempty(ThreatName_)
+| where ThreatName_ startswith "Trojan"
+    or ThreatName_ startswith "backdoor"
+    or ThreatName_ startswith "exploit"
+    or ThreatName_ contains "virus"
+| extend WasRemediated_ = tostring(AdditionalFields.WasRemediated)
+//uncomment Below line if you want to see result which are not remediated
+//| where WasRemediated_ !contains "true"
